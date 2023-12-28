@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
+import { Server, Socket } from "socket.io"; 
 import app from "./app.js";
 import logger from "./configs/logger.config.js";
 import dotenv from "dotenv";
+import SocketServer from "./utils/SocketServer.js";
+
 dotenv.config();
 
 const { DATABASE_URL } = process.env;
@@ -30,6 +33,19 @@ let server;
 
 server = app.listen(PORT, () => {
     logger.info(`Server is listening to PORT ${ PORT }`);
+});
+
+//socket io
+const io = new Server(server, {
+    pingTimeout: 60000,
+    cors: {
+        origin: process.env.CLIENT_ENDPOINT,
+    }
+});
+
+io.on("connection", (socket) => {
+    logger.info('Socket io connected successfully');
+    SocketServer(socket, io);
 });
 
 
