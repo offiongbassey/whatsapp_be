@@ -5,7 +5,7 @@ export const sendMessage = async (req, res, next) => {
     try {
         const user_id = req.user.userId;
         const { message, convo_id, files } = req.body;
-        if(!convo_id || (!message && files)){
+        if(!convo_id){
             logger.error("Please provide a conversaion Id and a message body.");
             return res.status(400);
         }
