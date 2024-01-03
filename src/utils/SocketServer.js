@@ -66,7 +66,7 @@ socket.on("answer call", (data) => {
 })
 
 //ending a call
-socket.on('end call', (id) => {
+socket.on("end call", (id) => {
     io.to(id).emit("end call");
 })
 }
