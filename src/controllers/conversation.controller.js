@@ -1,7 +1,8 @@
 import createHttpError from "http-errors";
 import logger from "../configs/logger.config.js";
-import { createConversation, doesConversationExist, getUserConversations, populateConversation } from "../services/conversation.service.js";
+import { createConversation, doesConversationExist, getUserConversations, populateConversation, updateLatestMessage } from "../services/conversation.service.js";
 import { findUser } from "../services/user.service.js";
+import { createMessage, populateMessage } from "../services/message.service.js";
 
 export const create_open_conversation = async (req, res, next) => {
 try {
@@ -13,6 +14,7 @@ try {
             logger.error("Please provide the user Id you want to start a conversation with");
             throw createHttpError.BadRequest("Something went wrong");
         }
+        
         //check if chat already exists
         const existed_conversation = await doesConversationExist(sender_id, receiver_id, false);
         if(existed_conversation){
@@ -50,7 +52,7 @@ export const getConversations = async (req, res, next)=> {
     }
 }
 
-export const createGroup = async (req, res, nexth) => {
+export const createGroup = async (req, res, next) => {
     try {
         const { name, users } = req.body;
         //add current user to users
@@ -67,15 +69,26 @@ export const createGroup = async (req, res, nexth) => {
             users,
             isGroup: true,
             admin: req.user.userId,
-            picture: "https://play-lh.googleusercontent.com/zDqzqDw8_y5z_TYIWJaZ6etvqn9lOvkSaM4LZXBqcnziLh0lGSN9psLkXqwvThS4Nw",
+            picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_kn25zrRwIl9PebM3BdHRLj5yfDKLqyJuHUcHvwuMO5brqets1IYGnqIVCq5cQFCYd74&usqp=CAU",
 
         }
         const newConvo = await createConversation(convoData);
+        //create an empty message
+        const message_data =
+        {
+            sender: req.user.userId,
+            message: "",
+            conversation: newConvo._id,
+            files: [],
+           
+        }
+        const newMessage = await createMessage(message_data);
         const populatedConvo = await populateConversation(newConvo._id, 
             "users admin", 
             "-password")
-            console.log(populatedConvo);
-            res.status(200).json(populatedConvo);
+        let populatedMessage = await populateMessage(newMessage._id);
+        await updateLatestMessage(newConvo._id, newMessage);
+        res.status(200).json(populatedMessage);
 
     } catch (error) {
         next(error);

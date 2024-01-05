@@ -63,7 +63,7 @@ export const getUserConversations = async (user_id) => {
     .populate('users', '-password')
     .populate('admin', '-password')
     .populate('latestMessage')
-    .sort({updatedAd: -1 })
+    .sort({updatedAt: -1 })
     .then(async(results) => {
         results = await UserModel.populate(results, {
             path: "latestMessage.sender",
