@@ -15,6 +15,24 @@ const messageSchema = mongoose.Schema({
         type: ObjectId,
         ref: "ConversationModel",
     },
+    status: {
+        type: String,
+        default: "active"
+    },
+    is_reply:{
+        type: Boolean,
+        default: false
+    },
+    message_replied: {
+        type: ObjectId,
+        ref: "MessageModel",
+        default: null
+    },
+    replied_by: {
+        type: ObjectId,
+        ref: "UserModel",
+        default: null
+    },
     files: [],
 }, {
     collection: "messages", 

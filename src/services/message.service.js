@@ -35,3 +35,14 @@ export const getConvoMessages = async (convo_id) => {
     if(!messages) throw  createHttpError.BadRequest("Oops.. Something went wrong");
     return messages;
 }
+
+export const deleteUserMessage = async (message_id, user_id ) => {
+    const message = await MessageModel.findOne({ _id: message_id, sender: user_id });
+    if(!message){
+        throw createHttpError.BadRequest("Unauthorized Action");
+    }
+    const soft_del_message = await MessageModel.findByIdAndUpdate({ _id: message_id }, { status: "deleted"  });
+    soft_del_message.status = "deleted";
+    return soft_del_message;
+
+}

@@ -37,6 +37,7 @@ socket.on("send message", (message) => {
     conversation.users.forEach((user) => {
         if(user._id === message.sender._id) return;
         socket.in(user._id).emit("receive message", message);
+        // console.log("here is the user", user._id)
     })
 });
 
@@ -46,6 +47,18 @@ socket.on('typing', (conversation) => {
 })
 socket.on('stop typing', (conversation) => {
     socket.in(conversation).emit("stop typing");
+});
+
+
+//delete message
+socket.on("delete message", (msg) => {
+    let conversaion = msg.conversation;
+    if(!conversaion.users) return;
+    conversaion.users.forEach((user) => {
+        if(user._id === msg.sender_id) return;
+        socket.in(user._id).emit("deletedMessage", msg);
+    })
+    console.log("deleted message -------->", msg);
 });
 
 //call
@@ -63,10 +76,11 @@ socket.on("call user", (data) => {
 //answer call 
 socket.on("answer call", (data) => {
     io.to(data.to).emit('call accepted', data.signal);
-})
+});
 
 //ending a call
 socket.on("end call", (id) => {
     io.to(id).emit("end call");
-})
+});
+
 }

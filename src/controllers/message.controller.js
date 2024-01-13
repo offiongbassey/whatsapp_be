@@ -1,5 +1,5 @@
 import { updateLatestMessage } from "../services/conversation.service.js";
-import { createMessage, getConvoMessages, populateMessage } from "../services/message.service.js";
+import { createMessage, deleteUserMessage, getConvoMessages, populateMessage } from "../services/message.service.js";
 
 export const sendMessage = async (req, res, next) => {
     try {
@@ -34,6 +34,23 @@ export const  getMessages = async (req, res, next) => {
         }
         const messages = await getConvoMessages(convo_id);
         res.json(messages);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const deleteMessage = async (req, res, next) => {
+    try {
+        const user_id = req.user.userId;
+        const { message_id } = req.params;
+        if(!message_id){
+            logger.error("Message Id is required");
+            res.status(400);
+        }
+
+        const delete_message = await deleteUserMessage(message_id, user_id);
+        const populated_message = await populateMessage(delete_message._id);
+        res.json(populated_message)
     } catch (error) {
         next(error);
     }
