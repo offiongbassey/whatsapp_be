@@ -1,5 +1,5 @@
 import { updateLatestMessage } from "../services/conversation.service.js";
-import { createMessage, deleteUserMessage, getConvoMessages, populateMessage } from "../services/message.service.js";
+import { createMessage, deleteUserMessage, editUserMessage, getConvoMessages, populateMessage } from "../services/message.service.js";
 
 export const sendMessage = async (req, res, next) => {
     try {
@@ -51,6 +51,27 @@ export const deleteMessage = async (req, res, next) => {
         const delete_message = await deleteUserMessage(message_id, user_id);
         const populated_message = await populateMessage(delete_message._id);
         res.json(populated_message)
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const editMessage = async (req, res, next) => {
+    try {
+        const user_id = req.user.userId;
+        const { message_id } = req.params;
+        const { message } = req.body;
+
+        if(!message_id){
+            logger.error("MessageId is required");
+            res.status(400);
+        }
+
+        const edit_message = await editUserMessage(message_id, user_id, message);
+        const populated_message = await populateMessage(edit_message._id);
+        console.log("Message editing...");
+        res.json(populated_message);
+
     } catch (error) {
         next(error);
     }

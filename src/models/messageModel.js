@@ -19,6 +19,10 @@ const messageSchema = mongoose.Schema({
         type: String,
         default: "active"
     },
+    editedStatus: {
+        type: Boolean,
+        default: false
+    },
     is_reply:{
         type: Boolean,
         default: false

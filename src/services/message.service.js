@@ -46,3 +46,12 @@ export const deleteUserMessage = async (message_id, user_id ) => {
     return soft_del_message;
 
 }
+
+export const editUserMessage = async (message_id, user_id, message) => {
+    const msg = await MessageModel.findOne({ _id: message_id, sender: user_id });
+    if(!msg){
+        throw createHttpError.BadRequest("Unathorized User");
+    }
+    const updated_message = await MessageModel.findByIdAndUpdate({ _id: message_id }, { message, editedStatus: true });
+    return updated_message;
+}

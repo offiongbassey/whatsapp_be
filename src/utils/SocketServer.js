@@ -49,18 +49,6 @@ socket.on('stop typing', (conversation) => {
     socket.in(conversation).emit("stop typing");
 });
 
-
-//delete message
-socket.on("delete message", (msg) => {
-    let conversaion = msg.conversation;
-    if(!conversaion.users) return;
-    conversaion.users.forEach((user) => {
-        if(user._id === msg.sender_id) return;
-        socket.in(user._id).emit("deletedMessage", msg);
-    })
-    console.log("deleted message -------->", msg);
-});
-
 //call
 socket.on("call user", (data) => {
     let userId = data.userToCall;
@@ -82,5 +70,26 @@ socket.on("answer call", (data) => {
 socket.on("end call", (id) => {
     io.to(id).emit("end call");
 });
+//delete message
+socket.on("delete message", (msg) => {
+    let conversaion = msg.conversation;
+    if(!conversaion.users) return;
+    conversaion.users.forEach((user) => {
+        if(user._id === msg.sender_id) return;
+        socket.in(user._id).emit("deletedMessage", msg);
+    })
+    console.log("deleted message -------->", msg);
+});
 
+//edit message
+socket.on("edit message", (msg) => {
+    let conversation = msg.conversation;
+    if(!conversation.users) return;
+    conversation.users.forEach((user) => {
+        if(user._id === msg.sender_id) return;
+        socket.in(user._id).emit("editMessage", msg);
+    });
+    console.log("editing message  -----", msg);
+})
 }
+
