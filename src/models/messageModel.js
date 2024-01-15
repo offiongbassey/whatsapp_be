@@ -23,6 +23,16 @@ const messageSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
+    reaction: [
+        {   user: {
+                type: ObjectId,
+                ref: "UserModel"
+            },
+            emoji: {
+                type: String
+            }
+        }
+    ],
     is_reply:{
         type: Boolean,
         default: false

@@ -1,5 +1,5 @@
 import { updateLatestMessage } from "../services/conversation.service.js";
-import { createMessage, deleteUserMessage, editUserMessage, getConvoMessages, populateMessage } from "../services/message.service.js";
+import { createMessage, deleteUserMessage, editUserMessage, getConvoMessages, populateMessage, sendReaction } from "../services/message.service.js";
 
 export const sendMessage = async (req, res, next) => {
     try {
@@ -63,15 +63,35 @@ export const editMessage = async (req, res, next) => {
         const { message } = req.body;
 
         if(!message_id){
-            logger.error("MessageId is required");
+            logger.error("Message Id is required");
             res.status(400);
         }
 
         const edit_message = await editUserMessage(message_id, user_id, message);
         const populated_message = await populateMessage(edit_message._id);
-        console.log("Message editing...");
+        console.log("Message editing...", populated_message);
         res.json(populated_message);
 
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const handleReaction = async (req, res, next) => {
+    try {
+        const user_id = req.user.userId;
+        const { message_id } = req.params;
+        const { emoji } = req.body;
+
+        if(!message_id){
+            logger.error("Message ID is required");
+            res.status(400);
+        }
+
+        const send_emoji = await sendReaction(message_id, user_id, emoji);
+        const populated_message = await populateMessage(send_emoji._id);
+        console.log("I got it -----------_", populated_message);
+        res.status(201).json(send_emoji);
     } catch (error) {
         next(error);
     }

@@ -55,3 +55,57 @@ export const editUserMessage = async (message_id, user_id, message) => {
     const updated_message = await MessageModel.findByIdAndUpdate({ _id: message_id }, { message, editedStatus: true });
     return updated_message;
 }
+
+export const sendReaction = async (message_id, user_id, emoji) => {
+    const msg = await MessageModel.findOne({ _id: message_id });
+
+    if(!msg){
+        throw createHttpError.BadRequest("Message not found");
+    }
+    
+    //verifying if this user already has a reaction on this message
+    let check = false
+    let add_emoji;
+    msg.reaction.forEach((react) => {
+        if(react.user == user_id){
+            check = true;
+        }
+    });
+    const query = { _id: message_id, "reaction.user": { user_id } };
+
+    //if the user has a reaction already, then update the reaction
+    if(check === true){
+    add_emoji = await MessageModel.findOneAndUpdate({
+        '_id': message_id,
+        reaction: {
+            $elemMatch: {
+                user: user_id
+            }
+        }
+    }, {
+        $set: {
+                "reaction.$[s].user": user_id,
+                "reaction.$[s].emoji": emoji
+        }
+    }, {
+        'arrayFilters': [
+            { "s.user": user_id }
+        ],
+        'new': true,
+        'safe': true
+    });
+
+    //othewise create add new reaction to the message
+    }else{
+    add_emoji = await MessageModel.findOneAndUpdate(
+        { _id: message_id}, 
+        {$push: {"reaction": {
+            user: user_id,
+            emoji
+        }}}, 
+        { new: true }
+    );
+    }
+    
+    return add_emoji;
+}
