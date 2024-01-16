@@ -15,6 +15,12 @@ export const populateMessage = async(id) => {
         model: "UserModel",
     })
     .populate({
+        path: "reaction.user",
+        select: "name picture _id",
+        model: "UserModel"
+        
+    })
+    .populate({
         path: 'conversation',
         select: 'name picture isGroup users',
         model: "ConversationModel",
@@ -31,6 +37,11 @@ export const populateMessage = async(id) => {
 export const getConvoMessages = async (convo_id) => {
     const messages = await MessageModel.find({ conversation: convo_id})
     .populate("sender", "name picture email status")
+    .populate({
+        path: "reaction.user",
+        select: "name picture _id",
+        model: "UserModel"
+    })
     .populate("conversation");
     if(!messages) throw  createHttpError.BadRequest("Oops.. Something went wrong");
     return messages;
@@ -64,11 +75,13 @@ export const sendReaction = async (message_id, user_id, emoji) => {
     }
     
     //verifying if this user already has a reaction on this message
-    let check = false
+    let check = false;
+    let existing_emoji;
     let add_emoji;
     msg.reaction.forEach((react) => {
         if(react.user == user_id){
             check = true;
+            existing_emoji = react.emoji;
         }
     });
     const query = { _id: message_id, "reaction.user": { user_id } };
@@ -85,7 +98,7 @@ export const sendReaction = async (message_id, user_id, emoji) => {
     }, {
         $set: {
                 "reaction.$[s].user": user_id,
-                "reaction.$[s].emoji": emoji
+                "reaction.$[s].emoji": existing_emoji === emoji ? "" : emoji
         }
     }, {
         'arrayFilters': [
