@@ -90,8 +90,8 @@ export const handleReaction = async (req, res, next) => {
 
         const send_emoji = await sendReaction(message_id, user_id, emoji);
         const populated_message = await populateMessage(send_emoji._id);
-        console.log("I got it -----------_", populated_message);
-        res.status(201).json(send_emoji);
+        console.log("populated --------------", populated_message)
+        res.status(201).json(populated_message);
     } catch (error) {
         next(error);
     }
