@@ -21,6 +21,11 @@ export const populateMessage = async(id) => {
         
     })
     .populate({
+        path: "message_replied",
+        select: "message",
+        model: "MessageModel"
+    })
+    .populate({
         path: 'conversation',
         select: 'name picture isGroup users',
         model: "ConversationModel",
@@ -41,6 +46,11 @@ export const getConvoMessages = async (convo_id) => {
         path: "reaction.user",
         select: "name picture _id",
         model: "UserModel"
+    })
+    .populate({
+        path: "message_replied",
+        select: "message _id",
+        model: "MessageModel"
     })
     .populate("conversation");
     if(!messages) throw  createHttpError.BadRequest("Oops.. Something went wrong");

@@ -100,8 +100,16 @@ socket.on("send reaction", (msg) => {
         if(user._id === msg.sender_id) return;
         socket.in(user._id).emit("receiveReaction", msg);
     })
-  
-    console.log("sending reaction --------------------> ", msg);
+});
+
+//reply message
+socket.on("reply message", (msg) => {
+    let conversation = msg.conversation;
+    if(!conversation.users) return;
+    conversation.users.forEach((user) => {
+        if(user._id === msg.sender_id) return;
+        socket.in(user._id).emit("replyMessage", msg);
+    });
 })
 }
 

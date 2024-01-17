@@ -96,3 +96,29 @@ export const handleReaction = async (req, res, next) => {
         next(error);
     }
 }
+
+export const replyMessage = async (req, res, next) => {
+    try {
+        const user_id = req.user.userId;
+        const { message, convo_id, files } = req.body;
+        const { reply_id } = req.params;
+
+        const message_data = {
+            sender: user_id,
+            message,
+            conversation: convo_id,
+            is_reply: true,
+            message_replied: reply_id,
+            replied_by: user_id,
+            files: files || []
+        }
+        const send_reply = await createMessage(message_data);
+        const populated_message = await populateMessage(send_reply._id);
+        await updateLatestMessage(convo_id, send_reply)
+        console.log("replying message -0------", populated_message);
+        return res.status(201).json(populated_message);
+
+    } catch (error) {
+        next(error);
+    }
+}
