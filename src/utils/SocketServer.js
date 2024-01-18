@@ -100,6 +100,7 @@ socket.on("send reaction", (msg) => {
         if(user._id === msg.sender_id) return;
         socket.in(user._id).emit("receiveReaction", msg);
     })
+    console.log("here we go ------------------", msg);
 });
 
 //reply message

@@ -2,6 +2,7 @@ import createHttpError from "http-errors";
 import validator from "validator";
 import { UserModel } from "../models/index.js";
 import bcrypt from "bcrypt";
+import { responseHandler } from "../helpers/responseHandler.js";
 
 //env variables
 const { DEFAULT_PICTURE, DEFAULT_STATUS } = process.env;
@@ -33,7 +34,8 @@ export const createUser =async(userData) => {
     //check if user already exist
     const checkDb = await UserModel.findOne({ email });
     if(checkDb){
-        throw createHttpError.Conflict("Email address already exist");
+        throw new Error("Email address already exist")
+        // throw createHttpError.Conflict("Email address already exist");
     }
     //check password length
     if(!validator.isLength(password, {

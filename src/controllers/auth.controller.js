@@ -2,11 +2,13 @@ import createHttpError from "http-errors";
 import { createUser, signUser } from "../services/auth.service.js";
 import { generateToken, verifyToken } from "../services/token.service.js";
 import { findUser } from "../services/user.service.js";
+import jwt from "jsonwebtoken";
+import { responseHandler } from "../helpers/responseHandler.js";
+import { errorHandler } from "../helpers/errorHandler.js";
 
-export const register = async(req, res, next) => {
+export const register = async(req, res) => {
     try {
         const { name, email, picture, status, password } = req.body;
-        console.log(`me ${email}`)
         const newUser = await createUser({
             name,
             email,
@@ -32,23 +34,23 @@ export const register = async(req, res, next) => {
             maxAge: 30 * 24 * 60 * 60 * 1000, //30 days
         });
 
-        res.json({
-            message: "Register success.",
-            user: {
-                _id: newUser._id,
-                name: newUser.name,
-                email: newUser.email,
-                picture: newUser.picture,
-                status: newUser.status,
-                token: access_token
-            }
-        });
+        const user = {
+            _id: newUser._id,
+            name: newUser.name,
+            email: newUser.email,
+            picture: newUser.picture,
+            status: newUser.status,
+            token: access_token
+        }
+        return responseHandler(res, 201, true, "Account Successfully Created", user);
+        
     } catch (error) {
-       next(error);
+        await errorHandler(error);
+        return responseHandler(res, 500, false, "Something went wrong, try again later");
     }
 }
  
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
     try {
 
         const { email, password } = req.body;
@@ -70,32 +72,30 @@ export const login = async (req, res, next) => {
             maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
         });
 
-        res.json({
-            message: "Login Successful",
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                picture: user.picture,
-                status: user.status,
-                token: access_token
-            }
-        })
 
+        const user_data = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            picture: user.picture,
+            status: user.status,
+            token: access_token
+        }
+        return responseHandler(res, 201, true, "Account Successfully Created", user_data)
     } catch (error) {
-        next(error);
+        await errorHandler(error);
+        return responseHandler(res, 500, false, "Something went wrong, try again later");
     }
 }
 
 export const logout = async (req, res, next) => {
     try {
         res.clearCookie('refreshToken', { path: "/api/v1/auth/refreshtoken"});
-        res.json({
-            message: "Logged out!"
-        });
+        return responseHandler(res, 200, true, "Logged out", null);
 
     } catch (error) {
-        next(error);
+        await errorHandler(error);
+        return responseHandler(res, 500, false, "Something went wrong, try again later");
     }
 }
 
@@ -112,8 +112,8 @@ export const refreshToken= async (req, res, next) => {
         "1d",
         process.env.ACCESS_TOKEN_SECRET
        );
-       res.json({
-        user: {
+  
+        const user_data = {
             _id: user._id,
             name: user.name,
             email: user.email,
@@ -121,12 +121,30 @@ export const refreshToken= async (req, res, next) => {
             status: user.status,
             token: access_token
         }
-       });
 
-
-
-       res.json(check);
+        return responseHandler(res, 200, true, "Token refresh successful", user_data)
     } catch (error) { 
-        next(error);
+       await errorHandler(error);
+       return responseHandler(res, 500, false, "Something went wrong, try again later");
+    }
+}
+
+export const getLoginStatus = async (req, res, next) => {
+    try {
+        const { token } = req.params;
+        console.log("here is token ", token);
+        if(!token){
+            throw createHttpError.BadRequest("Token is required");
+        }
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+            if(err){
+            return responseHandler(res, 200, true, "User Logged Out", false)
+            }  
+        })
+         return responseHandler(res, 200, true, "User Logged In", true)
+
+    } catch (error) {
+        await errorHandler(error);
+        return responseHandler(res, 500, false, "Something went wrong, try again later");
     }
 }
