@@ -4,6 +4,8 @@ import app from "./app.js";
 import logger from "./configs/logger.config.js";
 import dotenv from "dotenv";
 import SocketServer from "./utils/SocketServer.js";
+import { errorHandler } from "./helpers/errorHandler.js";
+import { responseHandler } from "./helpers/responseHandler.js";
 
 dotenv.config();
 
@@ -12,7 +14,7 @@ const PORT = process.env.PORT || 8000;
 
 //exit on mongodb error
 mongoose.connection.on('error', (err) => {
-    logger.error(`MongoDb connection error: ${ err}`);
+     errorHandler(`MongoDb connection error: ${ err }`);
     process.exit(1);
 });
 

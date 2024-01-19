@@ -6,13 +6,9 @@ import { errorHandler } from "../helpers/errorHandler.js";
 export const create_open_conversation = async (req, res, next) => {
 try {
     const sender_id = req.user.userId;
+    
     const { receiver_id, isGroup } = req.body;
-    //check if receiver_id is provided
     if(isGroup === false){
-        if(!receiver_id){
-            return responseHandler(res, 422, false, "Please provide the user Id you want to start a conversation with", null);
-        }
-        
         //check if chat already exists
         const existed_conversation = await doesConversationExist(sender_id, receiver_id, false);
         if(existed_conversation){
@@ -57,10 +53,6 @@ export const createGroup = async (req, res, next) => {
     try {
         const { name, users } = req.body;
         //add current user to users
-       
-        if(! name || !users) {
-            return responseHandler(res, 422, false, "Please fill all fields", null);
-        }
         users.push(req.user.userId);
         if(users.length < 2){
             return responseHandler(res, 422, false, "Add atleast 2 users to the group chat", null);

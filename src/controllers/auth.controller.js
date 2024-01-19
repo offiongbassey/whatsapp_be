@@ -5,9 +5,12 @@ import { findUser } from "../services/user.service.js";
 import jwt from "jsonwebtoken";
 import { responseHandler } from "../helpers/responseHandler.js";
 import { errorHandler } from "../helpers/errorHandler.js";
+import UserModel from "../models/userModel.js";
+import bcrypt from "bcrypt";
 
 export const register = async(req, res) => {
     try {
+        
         const { name, email, picture, status, password } = req.body;
         const newUser = await createUser({
             name,
@@ -19,7 +22,7 @@ export const register = async(req, res) => {
 
         const access_token = await generateToken(
             { userId: newUser._id }, 
-            "1d", 
+            "30d", 
             process.env.ACCESS_TOKEN_SECRET);
 
         const refresh_token = await generateToken(
@@ -54,11 +57,16 @@ export const login = async (req, res) => {
     try {
 
         const { email, password } = req.body;
-        const user = await signUser(email, password);
+        const user = await UserModel.findOne({ email: email.toLowerCase()}).lean();
+        if(!user) return responseHandler(res, 400, false, "Invalid Credentials.", null);
+    
+        //compare password
+        let password_matches = await bcrypt.compare(password, user.password);
+        if(!password_matches) return responseHandler(res, 400, false, "Invalid Credentials.", null);
 
         const access_token = await generateToken(
             { userId: user._id },
-            "1d",
+            "30d",
             process.env.ACCESS_TOKEN_SECRET);
         
         const refresh_token = await generateToken(
@@ -71,7 +79,6 @@ export const login = async (req, res) => {
             path: "/api/v1/auth/refreshtoken",
             maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
         });
-
 
         const user_data = {
             _id: user._id,
@@ -102,7 +109,7 @@ export const logout = async (req, res, next) => {
 export const refreshToken= async (req, res, next) => {
     try {
        const refresh_token = req.cookies.refreshToken;
-       if(!refresh_token) throw createHttpError.Unauthorized("Please login.");
+       if(!refresh_token) return responseHandler(res, 401, false, "Please login.")
 
        const check = await verifyToken(refresh_token, process.env.REFRESH_TOKEN_SECRET);
        const user = await findUser(check.userId);
@@ -132,16 +139,14 @@ export const refreshToken= async (req, res, next) => {
 export const getLoginStatus = async (req, res, next) => {
     try {
         const { token } = req.params;
-        console.log("here is token ", token);
-        if(!token){
-            throw createHttpError.BadRequest("Token is required");
-        }
+        
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
             if(err){
-            return responseHandler(res, 200, true, "User Logged Out", false)
+                return responseHandler(res, 200, true, "User Logged Out", false)
+            }else{
+                return responseHandler(res, 200, true, "User Logged In", true)
             }  
         })
-         return responseHandler(res, 200, true, "User Logged In", true)
 
     } catch (error) {
         await errorHandler(error);

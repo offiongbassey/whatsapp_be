@@ -1,13 +1,14 @@
 import express from "express";
-import trimRequest from "trim-request";
 import { getLoginStatus, login, logout, refreshToken, register } from "../controllers/auth.controller.js";
-import authMiddleware from "../middlewares/authMiddleware.js";
+import { validationHandler } from "../helpers/validation.js";
+import { get_login_status_validator, login_validator, signup_validator } from "../middlewares/validator.js";
+
 const router = express.Router();
 
-router.route("/register").post(trimRequest.all,register);
-router.route("/login").post(trimRequest.all,login);
-router.route("/logout").post(trimRequest.all,logout);
-router.route("/refreshtoken").post(trimRequest.all,refreshToken);
-router.route("/logged-in-status/:token").get(trimRequest.all, getLoginStatus);
+router.post("/register", validationHandler(signup_validator), register);
+router.post("/login", validationHandler(login_validator), login);
+router.post("/logout", logout);
+router.post("/refreshtoken", refreshToken)
+router.get("/logged-in-status/:token", validationHandler(get_login_status_validator), getLoginStatus);
 
 export default router;

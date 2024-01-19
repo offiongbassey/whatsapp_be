@@ -4,6 +4,6 @@ import authMiddelware from "../middlewares/authMiddleware.js";
 import { searchUsers } from "../controllers/user.controller.js";
 const router = express.Router();
 
-router.route("/").get(trimRequest.all, authMiddelware, searchUsers);
+router.get("/", authMiddelware, searchUsers);
 
 export default router;

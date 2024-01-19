@@ -12,10 +12,8 @@ export const  doesConversationExist = async (sender_id, receiver_id, isGroup) =>
         })
         .populate("users", '-password')
         .populate('latestMessage');
-    
-        if(!convos) throw createHttpError.BadRequest('Opps... something went wrong!')
+
         //populate message model
-    
         convos = await UserModel.populate(convos, {
             path: "latestMessage.sender",
             select: "name email picture status",
@@ -43,7 +41,6 @@ export const  doesConversationExist = async (sender_id, receiver_id, isGroup) =>
 
 export const createConversation = async (data) => {
     const newConvo = await ConversationModel.create(data);
-    if(!newConvo) throw createHttpError.BadRequest('Oops... Something went wrong.');
     return newConvo;
 }
 
@@ -51,7 +48,6 @@ export const populateConversation = async (id, fieldToPopulate, fieldsToRemove) 
     const populateConvo = await ConversationModel.findOne({ _id: id})
     .populate(fieldToPopulate, 
         fieldsToRemove);
-    if(!populateConvo) throw createHttpError.BadRequest("Oops...Something went wrong!");
     return populateConvo;
 }
 
@@ -71,7 +67,7 @@ export const getUserConversations = async (user_id) => {
         });
         conversations = results; 
     }).catch((err) => {
-        throw createHttpError.BadRequest("Oops. Something went wrong");
+        return err;
     });
     return conversations;
 }
@@ -80,6 +76,5 @@ export const updateLatestMessage = async(convo_id, msg) => {
     const updatedConvo = await ConversationModel.findByIdAndUpdate(convo_id, {
         latestMessage: msg 
     });
-    if(!updatedConvo) throw createHttpError.BadRequest("Oops... Something went wrong")
     return updatedConvo;
 }

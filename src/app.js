@@ -7,8 +7,8 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import fileUpload from "express-fileupload";
 import cors from "cors";
-import createHttpError from "http-errors";
 import routes from "./routes/index.js";
+import { responseHandler } from "./helpers/responseHandler.js";
 
 
 
@@ -43,20 +43,14 @@ app.use(fileUpload({
 
 app.use(cors());
 
+app.get("/", (req, res) => {
+   return responseHandler(res, 200, true, "Whatsapp Backend Api");
+})
+
 app.use("/api/v1", routes);
 
-app.use(async(req, res, next) => {
-    next(createHttpError.NotFound("This route does not exist."));
+app.use("*", (req, res) => {
+  return  responseHandler(res, 404, false, "Invalid Route");
 });
-
-app.use(async(err, req, res, next) => {
-    res.status(err.status || 500);
-    res.send({
-        error:{
-            status: err.status || 500,
-            message: err.message,
-        }
-    })
-})
 
 export default app;
