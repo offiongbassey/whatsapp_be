@@ -1,5 +1,5 @@
 import { body, param } from "express-validator";
-import { checkAllowedFields, titleCase, verifyEmail } from "../helpers/validation";
+import { checkAllowedFields, titleCase, verifyEmail, verifyPhone } from "../helpers/validation";
 
 export const signup_validator = [
     body('name')
@@ -9,6 +9,14 @@ export const signup_validator = [
         .withMessage("Name must be atleast 5 characters")
         .trim()
         .customSanitizer(titleCase),
+    body('phone')
+        .exists()
+        .withMessage("Phone Number is required")
+        .notEmpty()
+        .withMessage("Phone Number cannot be empty")
+        .isLength({ min: 11 })
+        .withMessage("Phone Number must be at least 11 digits")
+        .custom(verifyPhone),
     body('email')
         .exists()
         .withMessage("Email is required")
@@ -24,7 +32,7 @@ export const signup_validator = [
         .isLength({ min: 7})
         .withMessage("Password must not be less than 7 characters"),
     body()
-        .custom(body => checkAllowedFields(body, ['name', 'email', 'picture', 'status', 'password']))  
+        .custom(body => checkAllowedFields(body, ['name', 'phone', 'email', 'picture', 'status', 'password']))  
 ]
 
 export const login_validator = [

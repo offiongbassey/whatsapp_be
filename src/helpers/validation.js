@@ -44,7 +44,14 @@ export const titleCase = async (name) => {
 export const verifyEmail = async (email) => {
     const check_email = await UserModel.findOne({ email });
     if(check_email){
-        throw new Error("Email already exist");
+        throw new Error("Email already exist.");
     }
     return true;
+}
+
+export const verifyPhone = async (phone) => {
+    const check_phone = await UserModel.findOne({ phone });
+    if(check_phone){
+        throw new Error("Phone Number already exist.")
+    }
 }

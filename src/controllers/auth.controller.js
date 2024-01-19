@@ -11,9 +11,11 @@ import bcrypt from "bcrypt";
 export const register = async(req, res) => {
     try {
         
-        const { name, email, picture, status, password } = req.body;
-        const newUser = await createUser({
+        const { name, phone, email, picture, status, password } = req.body;
+        console.log("data", req.body);
+        const new_user = await createUser({
             name,
+            phone,
             email,
             picture,
             status, 
@@ -21,12 +23,12 @@ export const register = async(req, res) => {
         });
 
         const access_token = await generateToken(
-            { userId: newUser._id }, 
+            { userId: new_user._id }, 
             "30d", 
             process.env.ACCESS_TOKEN_SECRET);
 
         const refresh_token = await generateToken(
-            { userId: newUser._id },
+            { userId: new_user._id },
             "30d",
             process.env.REFRESH_TOKEN_SECRET
         );
@@ -38,11 +40,12 @@ export const register = async(req, res) => {
         });
 
         const user = {
-            _id: newUser._id,
-            name: newUser.name,
-            email: newUser.email,
-            picture: newUser.picture,
-            status: newUser.status,
+            _id: new_user._id,
+            name: new_user.name,
+            phone: new_user.phone,
+            email: new_user.email,
+            picture: new_user.picture,
+            status: new_user.status,
             token: access_token
         }
         return responseHandler(res, 201, true, "Account Successfully Created", user);
