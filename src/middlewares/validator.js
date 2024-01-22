@@ -175,3 +175,13 @@ export const reply_message_validator = [
         .notEmpty()
         .withMessage("Reply Id cannot be empty")
 ]
+
+export const profile_image_validator = [
+    body('picture')
+        .exists()
+        .withMessage("Picture is required")
+        .notEmpty()
+        .withMessage("Picture cannot be empty"),
+    body()
+        .custom(body => checkAllowedFields(body, ['picture']))
+]

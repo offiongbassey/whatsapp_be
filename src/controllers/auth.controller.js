@@ -156,3 +156,21 @@ export const getLoginStatus = async (req, res, next) => {
         return responseHandler(res, 500, false, "Something went wrong, try again later");
     }
 }
+
+export const changeProfileImage = async (req, res) => {
+    try {
+        const { picture } = req.body;
+        const user_id = req.user.userId;
+
+        const update_photo = await UserModel.findByIdAndUpdate({ _id: user_id}, {
+            picture
+        });
+
+        update_photo.picture = picture;
+       
+        return responseHandler(res, 200, true, "Profile Picture Updated", picture);
+    } catch (error) {
+        await errorHandler(error);
+        return responseHandler(res, 500, false, "Something went wrong, try again later.");
+    }
+}
