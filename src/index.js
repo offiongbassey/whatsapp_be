@@ -1,16 +1,15 @@
 import mongoose from "mongoose";
-import { Server, Socket } from "socket.io"; 
+import { Server } from "socket.io"; 
 import app from "./app.js";
 import logger from "./configs/logger.config.js";
 import dotenv from "dotenv";
 import SocketServer from "./utils/SocketServer.js";
 import { errorHandler } from "./helpers/errorHandler.js";
-import { responseHandler } from "./helpers/responseHandler.js";
 
 dotenv.config();
 
 const { DATABASE_URL } = process.env;
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT
 
 //exit on mongodb error
 mongoose.connection.on('error', (err) => {

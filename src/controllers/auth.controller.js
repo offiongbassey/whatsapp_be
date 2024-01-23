@@ -7,7 +7,6 @@ import { responseHandler } from "../helpers/responseHandler.js";
 import { errorHandler } from "../helpers/errorHandler.js";
 import UserModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import { client } from "../configs/redis.js";
 
 export const register = async(req, res) => {
     try {
@@ -84,13 +83,6 @@ export const login = async (req, res) => {
             maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
         });
 
-        //redis
-        await client.set(`name1`, access_token);
-        const redis_token = await client.get(`name1`, (err, data) => {
-            if(err) return responseHandler(res, 400, false, "Redis Error", err);
-        });
-        console.log("here is the redis ---------------------->", redis_token);
-
         const user_data = {
             _id: user._id,
             name: user.name,
@@ -99,7 +91,7 @@ export const login = async (req, res) => {
             status: user.status,
             token: access_token
         }
-        return responseHandler(res, 201, true, `Account Successfully Created ${redis_token}`, user_data)
+        return responseHandler(res, 201, true, `Account Successfully Created.`, user_data)
     } catch (error) {
         await errorHandler(error);
         return responseHandler(res, 500, false, "Something went wrong, try again later");
