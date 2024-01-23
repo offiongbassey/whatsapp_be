@@ -1,3 +1,4 @@
+import { client } from "../configs/redis.js";
 import { errorHandler } from "../helpers/errorHandler.js";
 import { responseHandler } from "../helpers/responseHandler.js";
 import MessageModel from "../models/messageModel.js";
@@ -18,6 +19,13 @@ export const sendMessage = async (req, res, next) => {
         let populatedMessage = await populateMessage(newMessage._id);
         await updateLatestMessage(convo_id, newMessage);
 
+        // const all_messages = await getConvoMessages(convo_id);
+        //sending message to redis
+        // await client.set(`msg${ convo_id.toString() }`, JSON.stringify(all_messages));
+        // const get_all_messages = await client.get(`msg${ convo_id.toString() }`, (err, data) => {
+        //     if(err) return responseHandler(res, 400, false, "Something went wrong", err);
+        // })
+
         return responseHandler(res, 201, true, "Message Sent", populatedMessage);
     } catch (error) {
        await errorHandler(error);
@@ -29,6 +37,11 @@ export const  getMessages = async (req, res, next) => {
     try {
         const { convo_id } = req.params;
         const messages = await getConvoMessages(convo_id);
+        //geting messages from redis
+        // const message = await client.get(`msg${ convo_id.toString()}`, (err, data ) => {
+        //     if(err) return responseHandler(res, 400, false, "Message not found", err);
+        // });
+        // console.log("Getting messages from redis -----------", JSON.parse(message));
 
         return responseHandler(res, 200, true, "Message Retrieved", messages);
     } catch (error) {
