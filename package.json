@@ -1,14 +1,14 @@
 {
   "name": "whatsapp_be",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "./src/index.js",
   "type": "module",
   "license": "MIT",
   "engines": { 
     "node" : 
     ">=4.3.2" },
   "scripts": {
-    "start": "node server.js",
+    "start": "node --es-module-specifier-resolution=node ./src/index.js",
     "dev": "nodemon --exec babel-node ./src/index.js"
   },
   "dependencies": {

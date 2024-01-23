@@ -1,5 +1,5 @@
 import createHttpError from "http-errors";
-import { createUser, signUser } from "../services/auth.service.js";
+import { createUser } from "../services/auth.service.js";
 import { generateToken, verifyToken } from "../services/token.service.js";
 import { findUser } from "../services/user.service.js";
 import jwt from "jsonwebtoken";
