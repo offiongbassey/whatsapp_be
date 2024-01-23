@@ -1,0 +1,24 @@
+name: Deploy to Azure App Service
+
+on:
+    push:
+        branches:
+            - main
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Source
+              uses: actions/checkout@v3
+            - name: Stetup Node.js version
+              uses: actions/setup-node@v4
+              with:
+                node-version: '18.x'
+            - name: install Dependencies
+              run: yarn install
+            - name: Deploy to Azure App Service
+              uses: azure/webapps-deploy@v2
+              with:
+                app-name: whatsapp-backend
+                publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+                package: .
