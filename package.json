@@ -4,11 +4,10 @@
   "main": "./src/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "babel-node ./src/index.js",
+    "start": "node server.js",
     "dev": "nodemon --exec babel-node ./src/index.js"
   },
   "dependencies": {
-    "@babel/node": "^7.22.19",
     "bcrypt": "^5.1.1",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
@@ -35,6 +34,7 @@
     "@babel/cli": "^7.23.4",
     "@babel/core": "^7.23.7",
     "@babel/eslint-parser": "^7.23.3",
+    "@babel/node": "^7.22.19",
     "@babel/plugin-transform-runtime": "^7.23.7",
     "@babel/plugin-transform-strict-mode": "^7.23.3",
     "@babel/preset-env": "^7.23.8",
