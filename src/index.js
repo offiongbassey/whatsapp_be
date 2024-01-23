@@ -10,7 +10,7 @@ import { responseHandler } from "./helpers/responseHandler.js";
 dotenv.config();
 
 const { DATABASE_URL } = process.env;
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8080;
 
 //exit on mongodb error
 mongoose.connection.on('error', (err) => {
