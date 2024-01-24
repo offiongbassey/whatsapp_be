@@ -52,8 +52,8 @@ socket.on('stop typing', (conversation) => {
 //call
 socket.on("call user", (data) => {
     let userId = data.userToCall;
-    let userSocketId = onlineUsers.find((user) => user.userId === userId);
-    io.to(userSocketId.socketId).emit('call user', {
+    let userSocketId = onlineUsers.find((user) => user.userId == userId);
+    io.to(userSocketId.socketId).emit("call user", {
         signal: data.signal,
         from: data.from,
         name: data.name,
